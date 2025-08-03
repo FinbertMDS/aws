@@ -28573,11 +28573,39 @@ Topic #: 1</p>
         checkbox.style.marginTop = '10px';
         checkbox.style.fontSize = '14px';
     
+        const questionAnswered = localStorage.getItem(`question-${questionId}`) === 'done';
+
         const input = document.createElement('input');
         input.type = 'checkbox';
         input.style.marginRight = '6px';
-        input.checked = localStorage.getItem(`question-${questionId}`) === 'done';
+        input.checked = questionAnswered;
         input.id = 'checkbox-suggested-' + questionId;
+
+        if (questionAnswered) {
+            let count = 0;
+            let prev = section.previousElementSibling;
+            let targetP = null;
+
+            while (prev && count < 20) {
+                if (
+                    prev.tagName === 'P' &&
+                    prev.textContent.includes('Question #:')
+                ) {
+                    targetP = prev;
+                    break;
+                }
+                prev = prev.previousElementSibling;
+                count++;
+            }
+
+            if (targetP) {
+                if (!targetP.innerHTML.includes('✅')) {
+                    targetP.innerHTML = targetP.innerHTML.replace(/(Question\s*#:\s*)/, '✅ $1');
+                }
+            } else {
+                console.warn(`Không tìm thấy <p> chứa "Question #: ${questionId}" phía trước`, section);
+            }
+        }
     
         input.addEventListener('change', () => {
             const oldValue = localStorage.getItem(`question-${questionId}`);
@@ -28593,7 +28621,7 @@ Topic #: 1</p>
     
         checkbox.appendChild(input);
         checkbox.appendChild(document.createTextNode('Đã hoàn thành câu hỏi này'));
-        section.appendChild(checkbox);
+        section.insertAdjacentElement('afterend', checkbox);
       });
     
       window.updateProgress = function() {
