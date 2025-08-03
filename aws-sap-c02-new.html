@@ -471,7 +471,15 @@ function toggleAnswer(buttonId) {
     // your code here
   });
 </script></head><body for="html-export">
-<div class="crossnote markdown-preview"><div id="progress-tracker" style="padding: 12px; background: #e9ecef; border-radius: 6px; margin-bottom: 20px;">Progress: <span id="completed-count">0</span> / <span id="total-count">0</span> questions completed.</div>
+    <div class="crossnote markdown-preview">
+        <div id="progress-tracker" style="padding: 12px; background: #e9ecef; border-radius: 6px; margin-bottom: 20px;">
+            <div style="margin-bottom: 6px;">
+              Progress: <span id="completed-count">0</span> / <span id="total-count">0</span> questions completed.
+            </div>
+            <div style="background-color: #dee2e6; border-radius: 4px; height: 12px; overflow: hidden;">
+              <div id="progress-bar" style="height: 100%; width: 0%; background-color: #28a745; transition: width 0.3s ease;"></div>
+            </div>
+          </div>
 <h1 id="exam-topics-questions">Exam Topics Questions </h1>
 <p>@thatonecodes</p>
 <h2 id="exam-aws-certified-solutions-architect---professional-sap-c02-topic-1-question-324-discussion">Exam AWS Certified Solutions Architect - Professional SAP-C02 topic 1 question 324 discussion </h2>
@@ -28623,6 +28631,19 @@ Topic #: 1</p>
         checkbox.appendChild(document.createTextNode('Đã hoàn thành câu hỏi này'));
         section.insertAdjacentElement('afterend', checkbox);
       });
+
+      // Tìm tất cả thẻ <p> chứa "Question #:"
+      const questionPs = Array.from(document.querySelectorAll('p'))
+          .filter(p => p.textContent.includes('Question #:'));
+
+      // Tìm thẻ <p> đầu tiên KHÔNG có dấu ✅
+      const firstUnchecked = questionPs.find(p => !p.textContent.includes('✅'));
+
+      if (firstUnchecked) {
+          // Scroll tới vị trí thẻ <p> đó với hiệu ứng smooth
+          firstUnchecked.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
     
       window.updateProgress = function() {
         const total = questionBlocks.length;
@@ -28632,6 +28653,17 @@ Topic #: 1</p>
     
         document.getElementById('completed-count').textContent = done;
         document.getElementById('total-count').textContent = total;
+
+        window.updateProgressBar(done, total);
+      }
+      window.updateProgressBar = function(completed, total) {
+        const percent = total === 0 ? 0 : Math.ceil((completed / total) * 100);
+
+        document.getElementById('completed-count').textContent = completed;
+        document.getElementById('total-count').textContent = total;
+
+        const bar = document.getElementById('progress-bar');
+        bar.style.width = percent + '%';
       }
     
       updateProgress();
