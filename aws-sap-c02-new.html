@@ -103,8 +103,13 @@
 <script>
 function toggleAnswer(buttonId) {
     const button = document.getElementById(buttonId);
-    const answerSection = document.getElementById('answer-section-' + buttonId);
-    
+    const answerSection = document.querySelector(
+      `.answer-section:not(.multiple-answer)#answer-section-${buttonId}`
+    );
+    if (!answerSection) {
+      // Hoặc không tồn tại, hoặc nó có class multiple-answer → bỏ qua
+      return;
+    }    
     if (answerSection.style.display === 'none' || answerSection.style.display === '') {
         answerSection.style.display = 'block';
         button.textContent = 'Hide Answer';
@@ -221,20 +226,6 @@ function checkAnswer(questionId) {
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 </style>
-<script>
-function toggleAnswer(buttonId) {
-    const button = document.getElementById(buttonId);
-    const answerSection = document.getElementById('answer-section-' + buttonId);
-    
-    if (answerSection.style.display === 'none' || answerSection.style.display === '') {
-        answerSection.style.display = 'block';
-        button.textContent = 'Hide Answer';
-    } else {
-        answerSection.style.display = 'none';
-        button.textContent = 'Show Answer';
-    }
-}
-</script>
 <title>aws-sap-c02-new</title>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -245,232 +236,8 @@ function toggleAnswer(buttonId) {
 /*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
 
       </style>
-<!-- The content below will be included at the end of the <head>
-<style>
-.answer-section {
-    display: none;
-    margin: 10px 0;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-left: 4px solid #007bff;
-    border-radius: 4px;
-}
-
-.show-answer-btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    margin: 10px 0;
-}
-
-.show-answer-btn:hover {
-    background-color: #0056b3;
-}
-
-.show-answer-btn:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
-
-.check-answer-btn {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    margin: 10px 0;
-}
-
-.check-answer-btn:hover {
-    background-color: #218838;
-}
-
-.check-answer-btn:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.25);
-}
-
-.answer-options {
-    margin: 15px 0;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-}
-
-.answer-option {
-    margin: 8px 0;
-    display: flex;
-    align-items: center;
-}
-
-.answer-option input[type="radio"],
-.answer-option input[type="checkbox"] {
-    margin-right: 10px;
-    transform: scale(1.2);
-}
-
-.answer-option label {
-    cursor: pointer;
-    font-size: 14px;
-    line-height: 1.4;
-}
-
-.result-message {
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 4px;
-    font-weight: bold;
-}
-
-.result-correct {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.result-incorrect {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-.result-partial {
-    background-color: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeaa7;
-}
-</style>
-
-<script>
-function toggleAnswer(buttonId) {
-    const button = document.getElementById(buttonId);
-    const answerSection = document.getElementById('answer-section-' + buttonId);
-    
-    if (answerSection.style.display === 'none' || answerSection.style.display === '') {
-        answerSection.style.display = 'block';
-        button.textContent = 'Hide Answer';
-    } else {
-        answerSection.style.display = 'none';
-        button.textContent = 'Show Answer';
-    }
-}
-
-function checkAnswer(questionId) {
-    const suggestedAnswerElement = document.getElementById('suggested-answer-' + questionId);
-    const resultElement = document.getElementById('result-' + questionId);
-    const checkButton = document.getElementById('check-btn-' + questionId);
-    
-    if (!suggestedAnswerElement) {
-        alert('Suggested answer not found for this question.');
-        return;
-    }
-    
-    const suggestedAnswer = suggestedAnswerElement.textContent.replace('Suggested Answer: ', '').replace(' 🗳️', '').trim();
-    const selectedAnswers = [];
-    
-    // Get all selected answers
-    const radioButtons = document.querySelectorAll('input[name="answer-' + questionId + '"]:checked');
-    const checkboxes = document.querySelectorAll('input[name="answer-' + questionId + '"]:checked');
-    
-    if (radioButtons.length > 0) {
-        // Single answer question
-        radioButtons.forEach(radio => {
-            selectedAnswers.push(radio.value);
-        });
-    } else if (checkboxes.length > 0) {
-        // Multiple answer question
-        checkboxes.forEach(checkbox => {
-            selectedAnswers.push(checkbox.value);
-        });
-    }
-    
-    if (selectedAnswers.length === 0) {
-        resultElement.innerHTML = '<div class="result-message result-incorrect">Please select an answer first.</div>';
-        resultElement.style.display = 'block';
-        return;
-    }
-    
-    // Compare answers
-    const selectedAnswerStr = selectedAnswers.sort().join('');
-    const isCorrect = selectedAnswerStr === suggestedAnswer;
-    
-    let resultClass = 'result-incorrect';
-    let resultText = 'Incorrect. Your answer: ' + selectedAnswerStr + ', Correct answer: ' + suggestedAnswer;
-    
-    if (isCorrect) {
-        resultClass = 'result-correct';
-        resultText = 'Correct! Well done!';
-    } else if (suggestedAnswer.length > 1 && selectedAnswers.length > 0) {
-        // Check for partial correct answers in multiple choice questions
-        const correctAnswers = suggestedAnswer.split('');
-        const correctSelected = selectedAnswers.filter(ans => correctAnswers.includes(ans));
-        if (correctSelected.length > 0) {
-            resultClass = 'result-partial';
-            resultText = 'Partially correct. You got some answers right, but missed others. Your answer: ' + selectedAnswerStr + ', Correct answer: ' + suggestedAnswer;
-        }
-    }
-    
-    resultElement.innerHTML = '<div class="result-message ' + resultClass + '">' + resultText + '</div>';
-    resultElement.style.display = 'block';
-}
-</script>
-
-<style>
-.answer-section {
-    display: none;
-    margin: 10px 0;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-left: 4px solid #007bff;
-    border-radius: 4px;
-}
-
-.show-answer-btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    margin: 10px 0;
-}
-
-.show-answer-btn:hover {
-    background-color: #0056b3;
-}
-
-.show-answer-btn:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
-</style>
-
-<script>
-function toggleAnswer(buttonId) {
-    const button = document.getElementById(buttonId);
-    const answerSection = document.getElementById('answer-section-' + buttonId);
-    
-    if (answerSection.style.display === 'none' || answerSection.style.display === '') {
-        answerSection.style.display = 'block';
-        button.textContent = 'Hide Answer';
-    } else {
-        answerSection.style.display = 'none';
-        button.textContent = 'Show Answer';
-    }
-}
-</script>
- element. --><script type="text/javascript">
-  document.addEventListener("DOMContentLoaded", function () {
-    // your code here
-  });
-</script></head><body for="html-export">
+</head>
+<body for="html-export">
     <div class="crossnote markdown-preview">
         <div id="progress-tracker" style="padding: 12px; background: #e9ecef; border-radius: 6px; margin-bottom: 20px;">
             <div style="margin-bottom: 6px;">
